@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Image</title>
+    <title>Weather Animation</title>
     <style>
         body, html {
             margin: 0;
@@ -19,8 +19,8 @@
         }
         canvas {
             display: block;
-            width: 100%;
-            height: 100%;
+            width: 251px;
+            height: 123px;
         }
     </style>
 </head>
@@ -31,10 +31,12 @@
         const apiKey = 'd7c271d4a91c484584b160833242508'; // Your API key
         const canvas = document.getElementById('weatherCanvas');
         const context = canvas.getContext('2d');
+        let icon, iconSize = 60;
+        let pulseDirection = 1;
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = 251;
+            canvas.height = 123;
         }
 
         function getCityFromUrl() {
@@ -65,25 +67,24 @@
 
             // City Name
             context.fillStyle = '#333333';
-            context.font = `${canvas.width * 0.04}px Arial`;
-            context.fillText(data.location.name, canvas.width * 0.05, canvas.height * 0.2);
+            context.font = '10px Arial'; // Adjust font size for small canvas
+            context.fillText(data.location.name, 5, 15); // Adjust positioning
 
             // Temperature
             context.fillStyle = '#ff6600';
-            context.font = `${canvas.width * 0.06}px Arial`;
-            context.fillText(`${data.current.temp_c}°C`, canvas.width * 0.05, canvas.height * 0.5);
+            context.font = '12px Arial'; // Adjust font size for small canvas
+            context.fillText(`${data.current.temp_c}°C`, 5, 35); // Adjust positioning
 
             // Weather Description
             context.fillStyle = '#666666';
-            context.font = `${canvas.width * 0.04}px Arial`;
-            context.fillText(data.current.condition.text, canvas.width * 0.05, canvas.height * 0.7);
+            context.font = '8px Arial'; // Adjust font size for small canvas
+            context.fillText(data.current.condition.text, 5, 55); // Adjust positioning
 
             // Weather Icon
-            const iconUrl = `https:${data.current.condition.icon}`;
-            const icon = new Image();
-            icon.src = iconUrl;
+            icon = new Image();
+            icon.src = `https:${data.current.condition.icon}`;
             icon.onload = () => {
-                context.drawImage(icon, canvas.width * 0.7, canvas.height * 0.2, 100, 100); // Adjust size as needed
+                animateCanvas();
             };
         }
 
@@ -96,18 +97,62 @@
 
             // Error Message
             context.fillStyle = '#ff0000';
-            context.font = `${canvas.width * 0.06}px Arial`;
-            context.fillText('Error loading data', canvas.width * 0.05, canvas.height * 0.5);
+            context.font = '10px Arial'; // Adjust font size for small canvas
+            context.fillText('Error loading data', 5, 60); // Adjust positioning
+        }
+
+        function animateCanvas() {
+            let angle = 0;
+            function animate() {
+                resizeCanvas();
+
+                // Clear Canvas
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw City Name
+                context.fillStyle = '#333333';
+                context.font = '10px Arial';
+                context.fillText(getCityFromUrl(), 5, 15);
+
+                // Draw Temperature
+                context.fillStyle = '#ff6600';
+                context.font = '12px Arial';
+                context.fillText(`${icon ? '---' : 'N/A'}°C`, 5, 35);
+
+                // Draw Weather Description
+                context.fillStyle = '#666666';
+                context.font = '8px Arial';
+                context.fillText('---', 5, 55);
+
+                // Animate Icon
+                if (icon) {
+                    context.save();
+                    context.translate(canvas.width * 0.7 + iconSize / 2, canvas.height * 0.2 + iconSize / 2);
+                    context.scale(pulseDirection, pulseDirection);
+                    context.translate(-iconSize / 2, -iconSize / 2);
+                    context.drawImage(icon, 0, 0, iconSize, iconSize);
+                    context.restore();
+
+                    // Pulse Effect
+                    pulseDirection += 0.01;
+                    if (pulseDirection > 1.1 || pulseDirection < 0.9) {
+                        pulseDirection = pulseDirection > 1.1 ? 1.1 : 0.9;
+                    }
+                }
+
+                // Continue animation
+                requestAnimationFrame(animate);
+            }
+            animate();
         }
 
         window.addEventListener('resize', () => {
-            const city = getCityFromUrl();
-            fetchWeather(city);
+            fetchWeather(getCityFromUrl());
         });
 
         // Initial fetch
-        const city = getCityFromUrl();
-        fetchWeather(city);
+        fetchWeather(getCityFromUrl());
     </script>
 </body>
 </html>
