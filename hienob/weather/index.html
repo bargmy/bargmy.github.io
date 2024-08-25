@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Image</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="weatherCanvas"></canvas>
+
+    <script>
+        const apiKey = 'd7c271d4a91c484584b160833242508'; // Your API key
+        const canvas = document.getElementById('weatherCanvas');
+        const context = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function getCityFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('city') || 'London'; // Default to London if no city is specified
+        }
+
+        async function fetchWeather(city) {
+            try {
+                const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch weather data');
+                }
+                const data = await response.json();
+                drawWeather(data);
+            } catch (error) {
+                console.error('Error:', error);
+                drawError();
+            }
+        }
+
+        function drawWeather(data) {
+            resizeCanvas();
+
+            // Clear Canvas
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            // City Name
+            context.fillStyle = '#333333';
+            context.font = `${canvas.width * 0.04}px Arial`;
+            context.fillText(data.location.name, canvas.width * 0.05, canvas.height * 0.2);
+
+            // Temperature
+            context.fillStyle = '#ff6600';
+            context.font = `${canvas.width * 0.06}px Arial`;
+            context.fillText(`${data.current.temp_c}°C`, canvas.width * 0.05, canvas.height * 0.5);
+
+            // Weather Description
+            context.fillStyle = '#666666';
+            context.font = `${canvas.width * 0.04}px Arial`;
+            context.fillText(data.current.condition.text, canvas.width * 0.05, canvas.height * 0.7);
+
+            // Weather Icon
+            const iconUrl = `https:${data.current.condition.icon}`;
+            const icon = new Image();
+            icon.src = iconUrl;
+            icon.onload = () => {
+                context.drawImage(icon, canvas.width * 0.7, canvas.height * 0.2, 100, 100); // Adjust size as needed
+            };
+        }
+
+        function drawError() {
+            resizeCanvas();
+
+            // Clear Canvas
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Error Message
+            context.fillStyle = '#ff0000';
+            context.font = `${canvas.width * 0.06}px Arial`;
+            context.fillText('Error loading data', canvas.width * 0.05, canvas.height * 0.5);
+        }
+
+        window.addEventListener('resize', () => {
+            const city = getCityFromUrl();
+            fetchWeather(city);
+        });
+
+        // Initial fetch
+        const city = getCityFromUrl();
+        fetchWeather(city);
+    </script>
+</body>
+</html>
