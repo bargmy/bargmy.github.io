@@ -1,1 +1,1 @@
-1.2.0.0;http://bargmy.ir/hienob/client-1.2.0.0.nw;test
+1.2.0.1;http://bargmy.ir/hienob/package.nw;Fixed Store & Added Game Icon Get
