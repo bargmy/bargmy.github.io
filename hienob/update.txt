@@ -1,1 +1,1 @@
-1.2.1.1;http://bargmy.ir/hienob/package.nw;BugFixes
+1.2.1.2;http://bargmy.ir/hienob/package.nw;Gets the city automaticly and new logo
