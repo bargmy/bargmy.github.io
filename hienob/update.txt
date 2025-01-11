@@ -1,1 +1,1 @@
-1.2.1.2;http://bargmy.ir/hienob/package.nw;Gets the city automaticly and new logo
+1.2.2.0;http://bargmy.ir/hienob/package.nw;Added More Animations & Wallpaper
